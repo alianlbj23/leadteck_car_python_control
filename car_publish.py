@@ -3,7 +3,6 @@ import websockets
 import json
 import orjson
 
-# 使用简单的字符串和字典表示设备数据类型和控制信号
 DEVICE_DATA_TYPE_ENUM = {"CAR_B_CONTROL": "car_B_control"}
 
 
