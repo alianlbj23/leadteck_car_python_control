@@ -3,52 +3,18 @@ import websockets
 import json
 import orjson
 
-# from pros_car_py.car_models import DeviceDataTypeEnum, CarBControl
-import pydantic
-from typing import List
-from enum import Enum, auto
+# 使用简单的字符串和字典表示设备数据类型和控制信号
+DEVICE_DATA_TYPE_ENUM = {"CAR_B_CONTROL": "car_B_control"}
 
 
-class StringEnum(str, Enum):
-    def _generate_next_value_(name, start, count, last_values):
-        return name
-
-    def __eq__(self, other):
-        if isinstance(other, StringEnum):
-            return self.value == other.value
-        elif isinstance(other, str):
-            return self.value == other
-        return False
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __str__(self):
-        return self.value
-
-    def __hash__(self):
-        return hash(self.value)
-
-
-class DeviceDataTypeEnum(StringEnum):
-    car_B_state = auto()
-    car_B_control = auto()
-    robot_arm = auto()
-
-
-class DeviceData(pydantic.BaseModel):
-    type: DeviceDataTypeEnum
-    data: dict
-
-
-class CarBControl(pydantic.BaseModel):
-    target_vel: List[float] = []
+def create_car_b_control(target_vel):
+    return {"target_vel": target_vel}
 
 
 async def advertise_topic(websocket):
     advertise_message = {
         "op": "advertise",
-        "topic": str(DeviceDataTypeEnum.car_B_control),
+        "topic": DEVICE_DATA_TYPE_ENUM["CAR_B_CONTROL"],
         "type": "std_msgs/String",
     }
     await websocket.send(json.dumps(advertise_message))
@@ -62,12 +28,12 @@ async def publish_to_writer(left_wheel_value, right_wheel_value):
         await advertise_topic(websocket)
 
         control_signal = {
-            "type": str(DeviceDataTypeEnum.car_B_control),
-            "data": dict(CarBControl(target_vel=[left_wheel_value, right_wheel_value])),
+            "type": DEVICE_DATA_TYPE_ENUM["CAR_B_CONTROL"],
+            "data": create_car_b_control([left_wheel_value, right_wheel_value]),
         }
         control_msg = {
             "op": "publish",
-            "topic": str(DeviceDataTypeEnum.car_B_control),
+            "topic": DEVICE_DATA_TYPE_ENUM["CAR_B_CONTROL"],
             "msg": {"data": orjson.dumps(control_signal).decode()},
         }
         await websocket.send(json.dumps(control_msg))
@@ -84,7 +50,6 @@ def value_ratio(value):
     return mapped_value
 
 
-# 輪速設定限制在10~-10之間
 def set_two_wheel(left_wheel_value, right_wheel_value):
     asyncio.get_event_loop().run_until_complete(
         publish_to_writer(value_ratio(left_wheel_value), value_ratio(right_wheel_value))
@@ -99,22 +64,18 @@ def car_back():
     set_two_wheel(-5, -5)
 
 
-# 左自轉
 def car_counterclockwise_rotate():
     set_two_wheel(-5, 5)
 
 
-# 右自轉
 def car_clockwise_rotate():
     set_two_wheel(5, -5)
 
 
-# 左斜轉
 def car_left_lean():
     set_two_wheel(2, 5)
 
 
-# 右斜轉
 def car_right_lean():
     set_two_wheel(5, 2)
 
