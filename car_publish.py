@@ -56,6 +56,10 @@ def set_two_wheel(left_wheel_value, right_wheel_value):
     )
 
 
+def car_customize_wheel_value(left_wheel_value=0, right_wheel_value=0):
+    set_two_wheel(left_wheel_value, right_wheel_value)
+
+
 def car_forward():
     set_two_wheel(5, 5)
 
@@ -85,7 +89,7 @@ def car_stop():
 
 
 def main(args=None):
-    car_stop()
+    car_customize_wheel_value(0, 0)
 
 
 if __name__ == "__main__":
