@@ -24,6 +24,10 @@ def publish_to_writer(left_wheel_value, right_wheel_value):
 
 
 def value_ratio(value):
+    if value > 10:
+        value = 10
+    elif value < -10:
+        value = -10
     old_min, old_max = -10, 10
     new_min, new_max = -30, 30
     mapped_value = new_min + (value - old_min) * (new_max - new_min) / (
