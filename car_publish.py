@@ -8,7 +8,7 @@ import roslibpy
 import orjson
 import time
 
-ros_client = roslibpy.Ros(host="localhost", port=9090)
+ros_client = roslibpy.Ros(host="192.168.0.210", port=9090)
 ros_client.run()
 
 car_control_topic = roslibpy.Topic(ros_client, "car_B_control", "std_msgs/String")
@@ -41,4 +41,4 @@ def set_two_wheel(left_wheel_value, right_wheel_value):
     time.sleep(0.1)
 
 
-set_two_wheel(5, 5)
+set_two_wheel(0, 0)
