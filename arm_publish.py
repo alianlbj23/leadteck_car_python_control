@@ -48,7 +48,7 @@ def publish_to_writer(
     }
     print("Publishing:", control_signal)
     car_control_topic.publish(roslibpy.Message(control_signal))
-    time.sleep(1)
+    time.sleep(0.5)
 
 
 def degree_to_radian(value_list):
@@ -67,12 +67,13 @@ def radian_to_degree(value_list):
 
 
 def reset_robot_arm():
-    reset_radian = degree_to_radian([90, 100, 20, 80, 30, 0])
+    reset_radian = degree_to_radian([90, 90, 175, 90, 90, 0])
+    # reset_radian = degree_to_radian([150, 20, 100, 70, 90, 0])
     publish_to_writer(positions=reset_radian)
 
 
 def axis1_arm():
-    new_angle = degree_to_radian([-1, -1, -1, 50, -1, -1])
+    new_angle = degree_to_radian([-1, -1, -1, 10, -1, -1])
     publish_to_writer(positions=new_angle)
 
 
@@ -80,6 +81,50 @@ def state_callback(message):
     global last_positions
     last_positions = message["positions"]
     print("Received previous data:", last_positions)
+
+
+# 往前座像夾取的動作
+def boxing1():
+    degree1 = degree_to_radian([90, 150, 125, 170, 50, 0])
+    degree2 = degree_to_radian([90, 50, 90, 120, 90, 0])
+    combine = [degree1, degree2]
+    for degree in combine:
+        publish_to_writer(degree)
+        time.sleep(1.5)
+
+
+# 左右搖擺
+def shake_left_and_right():
+    reset1 = degree_to_radian([90, 100, 130, 150, 90, 0])
+    degree1 = degree_to_radian([50, 100, 130, 150, 90, 0])
+    degree2 = degree_to_radian([120, 100, 130, 150, 90, 0])
+    publish_to_writer(reset1)
+    time.sleep(1)
+    combine = [degree1, degree2]
+    for i in range(5):
+        for degree in combine:
+            publish_to_writer(degree)
+            time.sleep(1)
+
+
+# 上下晃動
+def shake_up():
+    reset1 = degree_to_radian([90, 30, 100, 30, 90, 0])
+    degree1 = degree_to_radian([90, 80, 100, 30, 90, 0])
+    combine = [reset1, degree1]
+    for degree in combine:
+        publish_to_writer(degree)
+        time.sleep(1)
+
+
+# 袈裟斬り！
+def kesagiri():
+    reset1 = degree_to_radian([40, 60, 70, 70, 90, 0])
+    degree1 = degree_to_radian([150, 20, 100, 70, 90, 0])
+    combine = [reset1, degree1]
+    for degree in combine:
+        publish_to_writer(degree)
+        time.sleep(1)
 
 
 def main():
@@ -95,15 +140,12 @@ def main():
 
     # # 取消订阅
     # previous_state_topic.unsubscribe()
-    # reset_robot_arm()
-    axis1_arm()
+    # boxing1()
+    reset_robot_arm()
+    # kesagiri()
+    # shake1()
+    # axis1_arm()
 
 
 if __name__ == "__main__":
     main()
-
-    # try:
-    #     while True:
-    #         time.sleep(1)
-    # except KeyboardInterrupt:
-    #     ros_client.terminate()
